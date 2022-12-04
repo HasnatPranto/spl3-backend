@@ -1,5 +1,6 @@
 from settings import JWT_SECRET_KEY
 from flask_mysqldb import MySQLdb
+from flask_sqlalchemy import SQLAlchemy
 from hashlib import pbkdf2_hmac
 from functools import wraps
 from flask import request, abort
@@ -102,7 +103,6 @@ def token_required(f):
     def decorated(*args, **kwargs):
         token = None
         if "Authorization" in request.headers:
-            print(request.headers["Authorization"])
             token = request.headers["Authorization"].split(" ")
             token = None if len(token)==1 else token[1] 
         if not token:
@@ -127,6 +127,7 @@ def token_required(f):
                 "error": str(e)
             }, 500
 
-        return f(current_user[0][1:4], *args, **kwargs)
+        #return f(current_user[0][1:4], *args, **kwargs)
+        return f(*args, **kwargs)
 
     return decorated

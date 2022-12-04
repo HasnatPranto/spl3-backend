@@ -52,11 +52,3 @@ def signIn():
         #return jsonify({"success":True,"jwt_token": user_token,"username":username})
     else:
         return Response(status=401)
-    
-@auth_blueprint.route('/home',methods=["GET"])
-@token_required
-def homePage(user):
-     return jsonify({
-        "message": "successfully retrieved user profile",
-        "data": user
-    })
