@@ -36,7 +36,7 @@ def mapEnlisted(rows):
             {"essay_id":row[0], 
              "assessment_code":row[1], 
              "content":row[3],
-             "score": round((row[4]+row[5])/2, 1) if row[4]!=-1 else 'N/A',
+             "score": (row[4]+row[5]) if row[4]!=-1 else 'N/A',
              "late_submit": 'N/A' if row[3]=='' else row[6],
              "topic":row[9],
              "deadline": row[10],
@@ -71,3 +71,45 @@ def submitAssessment():
         return jsonify({"success":True}),201
     else:
         return Response(status = 409)
+    
+
+def mapAnalyticsData(rows):
+    objects = []
+    agg_score = 0
+    avg_score = 0
+    lowest = 11
+    highest = -1
+    late_submissions = 0
+    score_date = []
+    scores = []
+    
+    for row in rows:
+        
+        score = row[4]+row[5]
+        scores.append(score)
+        lowest = score if score<lowest else lowest
+        highest = score if score>highest else highest
+        agg_score+=score
+        late_submissions+= row[6]
+        score_date.append({"score":score,"date":row[10]})
+    
+    object = {
+        "submissions": len(rows),
+        "avg_score": round((agg_score/len(rows)),1) if rows else 0,
+        "lowest": lowest if lowest!=11 else 0,
+        "highest":highest if highest!=-1 else 0,
+        "late_sub": late_submissions,
+        "scores":scores,
+        "score_date":score_date
+    }        
+    return object
+    
+    
+@student_blueprint.route('analytics_data',methods=["GET"])
+@token_required
+def getAnalyticsData():
+    sid = request.args.get('sid')
+    
+    rows = db_read("""SELECT * FROM essay e INNER JOIN assessment a ON e.assessment_id= a.assessment_id WHERE e.student_id=%s AND e.manual_score>%s ORDER BY deadline ASC""",(sid,-1,))
+    
+    return jsonify({"success":True, "data": mapAnalyticsData(rows)}),200

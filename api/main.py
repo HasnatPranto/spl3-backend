@@ -6,7 +6,7 @@ from studentController import student_blueprint
 from evaluationController import evaluation_blueprint
 
 
-app = Flask(__name__,template_folder='./templates')
+app = Flask(__name__,template_folder='./templates',static_folder='./static')
 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
@@ -22,5 +22,11 @@ app.register_blueprint(assesseor_blueprint, url_prefix="/api/assessor")
 app.register_blueprint(student_blueprint, url_prefix="/api/student")
 app.register_blueprint(evaluation_blueprint, url_prefix="/api/evaluation")
 
+@app.route('/')
+def start():
+    return render_template('index.html')
+
 if __name__ == "__main__":
     app.run(debug=True)
+    start()
+    

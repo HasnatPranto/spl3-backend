@@ -1,6 +1,7 @@
 from flask import Blueprint,request, Response, jsonify
 from utils import (db_write,db_read)
 from utils import token_required
+from ml_models.evaluate import getSystemScore
 
 evaluation_blueprint = Blueprint("evaluation_blueprint",__name__)
 
@@ -32,3 +33,42 @@ def getSubmittedPapers():
         return jsonify(students),200
     else:
         return Response(status=200)
+    
+    
+@evaluation_blueprint.route('system_score',methods=["POST"])
+@token_required
+def evaluate():
+    essay = request.json['essay']
+    result = getSystemScore(essay)
+    
+    if result: 
+        return jsonify({"success": True, "result":result}),200
+    else:
+        return jsonify({"success": False}),200
+
+def calculateScore(mscore,sscore,weight):
+    #print(round(((mscore*(1-weight))+(sscore*weight)),2))
+    return round(((mscore*(1-weight))+(sscore*weight)),1)
+
+@evaluation_blueprint.route('final_score',methods=["POST"])
+@token_required
+def finalScore():
+    mscore = float(request.json['mscore'])
+    sscore = float(request.json['sscore'])
+    weight = float(request.json['weight'])
+    
+    return [calculateScore(mscore,sscore,weight)]
+
+
+@evaluation_blueprint.route('score_submission', methods = ["POST"])
+@token_required
+def submitScore():
+    w = float(request.json['weight'])
+    mscore = round((float(request.json['manualScore'])*(1-w)),1)
+    sscore = round((float(request.json['systemScore'])*(w)),1)
+    essay_id = request.json["eid"]
+    
+    if db_write("""UPDATE essay SET manual_score = %s, system_score = %s WHERE essay_id=%s""",(mscore,sscore,essay_id)):
+        return jsonify({"success":True}),201
+    else:
+        return Response(status = 409)
