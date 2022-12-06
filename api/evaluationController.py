@@ -2,6 +2,7 @@ from flask import Blueprint,request, Response, jsonify
 from utils import (db_write,db_read)
 from utils import token_required
 from ml_models.evaluate import getSystemScore
+from ml_models.evaluate_lstm import generateScore
 
 evaluation_blueprint = Blueprint("evaluation_blueprint",__name__)
 
@@ -39,10 +40,10 @@ def getSubmittedPapers():
 @token_required
 def evaluate():
     essay = request.json['essay']
-    result = getSystemScore(essay)
+    result = generateScore(essay)
     
     if result: 
-        return jsonify({"success": True, "result":result}),200
+        return jsonify({"success": True, "result":str(result)}),200
     else:
         return jsonify({"success": False}),200
 

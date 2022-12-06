@@ -74,9 +74,7 @@ def submitAssessment():
     
 
 def mapAnalyticsData(rows):
-    objects = []
     agg_score = 0
-    avg_score = 0
     lowest = 11
     highest = -1
     late_submissions = 0
