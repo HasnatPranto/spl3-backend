@@ -1,6 +1,7 @@
-/processed_data.csv
+/Processed_data.csv
 /training_set_rel3.tsv
 /big.txt
 /RF_without_PP
 /RF_with_PP
-/api/ml_models/lstm_model_ideal.h5
+/lstm_model_ideal.h5
+/word2vecmodel.bin

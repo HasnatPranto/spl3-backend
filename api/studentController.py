@@ -36,7 +36,7 @@ def mapEnlisted(rows):
             {"essay_id":row[0], 
              "assessment_code":row[1], 
              "content":row[3],
-             "score": (row[4]+row[5]) if row[4]!=-1 else 'N/A',
+             "score": round((row[4]+row[5]),1) if row[4]!=-1 else 'N/A',
              "late_submit": 'N/A' if row[3]=='' else row[6],
              "topic":row[9],
              "deadline": row[10],
